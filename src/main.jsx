@@ -13,22 +13,46 @@ import ListingDetail from './pages/ListingDetail'
 import { Orders, OrderDetail } from './pages/Orders'
 import Profile from './pages/Profile'
 
-function Private({children, role}) { return <ProtectedRoute role={role}><AppShell>{children}</AppShell></ProtectedRoute> }
+function Private({ children, role }) {
+  return (
+    <ProtectedRoute role={role}>
+      <AppShell>{children}</AppShell>
+    </ProtectedRoute>
+  )
+}
 
-function App(){return <AuthProvider><Routes>
-  <Route path="/" element={<LandingPage/>}/>
-  <Route path="/login" element={<Login/>}/>
-  <Route path="/signup" element={<Signup/>}/>
-  <Route path="/dashboard" element={<Private><Dashboard/></Private>}/>
-  <Route path="/marketplace" element={<Private><Marketplace/></Private>}/>
-  <Route path="/my-listings" element={<Private role="seller"><MyListings/></Private>}/>
-  <Route path="/listings/new" element={<Private role="seller"><NewListing/></Private>}/>
-  <Route path="/listings/:id" element={<Private><ListingDetail/></Private>}/>
-  <Route path="/quotes" element={<Private role="recycler"><Dashboard/></Private>}/>
-  <Route path="/orders" element={<Private><Orders/></Private>}/>
-  <Route path="/orders/:id" element={<Private><OrderDetail/></Private>}/>
-  <Route path="/profile" element={<Private><Profile/></Private>}/>
-  <Route path="*" element={<LandingPage/>}/>
-</Routes></AuthProvider>}
+function App() {
+  return (
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-createRoot(document.getElementById('root')).render(<BrowserRouter><App/></BrowserRouter>)
+        <Route path="/dashboard" element={<Private><Dashboard /></Private>} />
+
+        {/* Public browsing. Actions inside a listing can still require login. */}
+        <Route path="/marketplace" element={<Marketplace />} />
+
+        <Route path="/my-listings" element={<Private role="seller"><MyListings /></Private>} />
+        <Route path="/listings/new" element={<Private role="seller"><NewListing /></Private>} />
+
+        {/* Keep individual listing actions protected for the MVP. */}
+        <Route path="/listings/:id" element={<Private><ListingDetail /></Private>} />
+
+        <Route path="/quotes" element={<Private role="recycler"><Dashboard /></Private>} />
+        <Route path="/orders" element={<Private><Orders /></Private>} />
+        <Route path="/orders/:id" element={<Private><OrderDetail /></Private>} />
+        <Route path="/profile" element={<Private><Profile /></Private>} />
+
+        <Route path="*" element={<LandingPage />} />
+      </Routes>
+    </AuthProvider>
+  )
+}
+
+createRoot(document.getElementById('root')).render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+)
