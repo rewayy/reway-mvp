@@ -9,7 +9,7 @@ import LandingPage from './pages/LandingPage'
 import { Services, ServicePage } from './pages/Services'
 import { Login, Signup } from './pages/Auth'
 import Dashboard from './pages/Dashboard'
-import { MyListings, Marketplace, NewListing } from './pages/Listings'
+import { MyListings, Marketplace, BuyMarketplace, SellMarketplace, NewListing } from './pages/Listings'
 import ListingDetail from './pages/ListingDetail'
 import { Orders, OrderDetail } from './pages/Orders'
 import Profile from './pages/Profile'
@@ -39,6 +39,8 @@ function App() {
 
         {/* Public browsing. Actions inside a listing can still require login. */}
         <Route path="/marketplace" element={<Marketplace />} />
+        <Route path="/marketplace/buy" element={<BuyMarketplace />} />
+        <Route path="/marketplace/sell" element={<SellMarketplace />} />
 
         <Route path="/my-listings" element={<Private role="seller"><MyListings /></Private>} />
         <Route path="/listings/new" element={<Private role="seller"><NewListing /></Private>} />

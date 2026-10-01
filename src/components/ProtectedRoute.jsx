@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children, role }) {
   if (loading) return <div className="loading-screen">Loading Reway…</div>
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />
+    return <Navigate to="/login" state={{ from: `${location.pathname}${location.search}` }} replace />
   }
 
   const currentRole = profile?.role || user?.user_metadata?.role
