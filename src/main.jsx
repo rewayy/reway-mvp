@@ -6,6 +6,7 @@ import { AuthProvider } from './lib/auth'
 import ProtectedRoute from './components/ProtectedRoute'
 import AppShell from './components/AppShell'
 import LandingPage from './pages/LandingPage'
+import { Services, ServicePage } from './pages/Services'
 import { Login, Signup } from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import { MyListings, Marketplace, NewListing } from './pages/Listings'
@@ -28,6 +29,11 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/e-waste" element={<ServicePage type="e-waste" />} />
+        <Route path="/battery-waste" element={<ServicePage type="battery-waste" />} />
+        <Route path="/car-scrapping" element={<ServicePage type="car-scrapping" />} />
+        <Route path="/e-rickshaw-scrapping" element={<ServicePage type="e-rickshaw-scrapping" />} />
 
         <Route path="/dashboard" element={<Private><Dashboard /></Private>} />
 
