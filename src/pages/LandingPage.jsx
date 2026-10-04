@@ -1,76 +1,155 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import "../landing.css";
+import '../landing.css';
 
-const Arrow = ({small=false}) => <span className={small?'arrow small':'arrow'}>↗</span>;
-const Logo = () => <Link className="brand" to="/" aria-label="Reway home"><span className="brand-mark"><i></i><b></b></span><span>REWAY</span></Link>;
+const Arrow = () => <span aria-hidden="true">↗</span>;
+const Logo = () => <a className="rw-brand" href="#top" aria-label="Reway home"><span className="rw-logo-mark">R</span><span>REWAY</span></a>;
+const nav = [['Platform','#platform'],['How It Works','#how'],['Technology','#technology'],['For Businesses','#businesses'],['For Recyclers','#recyclers'],['About','#about']];
 
-const nav = [['Home','/'],['Our Services','/services'],['Marketplace','/marketplace']];
-const listings = [
- {type:'IT Equipment', qty:'1,240 kg', loc:'Delhi NCR', condition:'Mixed / working', tag:'Corporate lot'},
- {type:'Printed Circuit Boards', qty:'480 kg', loc:'Gurugram', condition:'Sorted', tag:'High-value stream'},
- {type:'Lithium-ion Batteries', qty:'760 kg', loc:'Noida', condition:'End-of-life', tag:'Battery waste'},
- {type:'Mixed Electronics', qty:'2.1 t', loc:'Bengaluru', condition:'Assorted', tag:'Demo listing'},
-];
-const stakeholders = ['Businesses','Recyclers','Refurbishers','Logistics','Material Buyers','Collection Partners'];
-const steps = [
- ['01','LIST','Upload your e-waste or battery-waste details.'],
- ['02','DISCOVER','Relevant recyclers discover available material.'],
- ['03','MATCH','Connect with suitable ecosystem participants.'],
- ['04','MOVE','Logistics partners facilitate transportation.'],
- ['05','RECYCLE','Material is processed and valuable resources recovered.'],
- ['06','RECIRCULATE','Recovered materials can be listed again.'],
+const categories = [
+  {code:'01', title:'Electronic Waste', text:'Laptops, desktops, monitors, servers, printers, PCBs, cables and other electrical and electronic equipment.', link:'/marketplace/buy?category=e-waste', img:'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=1000&q=80'},
+  {code:'02', title:'Battery Waste', text:'Lithium-ion, lead-acid, battery packs and other used or end-of-life batteries.', link:'/marketplace/buy?category=battery-waste', img:'https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?auto=format&fit=crop&w=1000&q=80'},
+  {code:'03', title:'End-of-Life Vehicles', text:'Old, damaged and end-of-life vehicles available for responsible scrapping and material recovery.', link:'/marketplace/buy?category=car-scrap', img:'https://images.unsplash.com/photo-1562141961-b5d23a03fb50?auto=format&fit=crop&w=1000&q=80'},
+  {code:'04', title:'E-Rickshaws & Components', text:'End-of-life e-rickshaws, batteries, motors and related vehicle components.', link:'/marketplace/buy?category=e-rickshaw-scrap', img:'https://images.unsplash.com/photo-1592833159155-c62df1b65634?auto=format&fit=crop&w=1000&q=80'}
 ];
 
 export default function LandingPage(){
- const { user, profile, signOut } = useAuth();
- const [menu,setMenu]=useState(false); const [scrolled,setScrolled]=useState(false);
- const role = profile?.role || user?.user_metadata?.role;
- const accountPath = role === 'recycler' ? '/marketplace' : '/dashboard';
- useEffect(()=>{const f=()=>setScrolled(scrollY>20);addEventListener('scroll',f);return()=>removeEventListener('scroll',f)},[]);
- return <div id="top" className="site">
-  <header className={scrolled?'nav scrolled':'nav'}><div className="nav-inner"><Logo/><nav className={menu?'open':''}>{nav.map(([n,h])=><Link key={n} to={h} onClick={()=>setMenu(false)}>{n}</Link>)}<a href="#about" onClick={()=>setMenu(false)}>About</a><a href="#contact" onClick={()=>setMenu(false)}>Contact</a>{user ? <><Link to={accountPath} onClick={()=>setMenu(false)}>My Account</Link><button className="nav-cta" type="button" onClick={async()=>{await signOut();setMenu(false)}}>Sign Out <Arrow small/></button></> : <><Link to="/login" onClick={()=>setMenu(false)}>Login</Link><Link className="nav-cta" to="/signup?role=seller" onClick={()=>setMenu(false)}>Sell Waste <Arrow small/></Link></>}</nav><button className="menu" onClick={()=>setMenu(!menu)} aria-label="Menu">{menu?'×':'☰'}</button></div></header>
-  <main>
-   <section className="hero"><div className="hero-grid"></div><div className="container hero-wrap">
-    <div className="eyebrow"><span className="pulse"></span> DIGITAL INFRASTRUCTURE FOR CIRCULARITY</div>
-    <h1>The digital infrastructure<br/>for a <em>circular economy.</em></h1>
-    <p className="hero-copy">Reway connects e-waste and battery-waste stakeholders through one technology ecosystem — enabling marketplaces, traceability and intelligence from generation to recovery.</p>
-    <div className="actions"><Link className="btn primary" to="/signup?role=seller">Sell Waste <Arrow/></Link><Link className="btn ghost" to="/marketplace">Explore Marketplace <Arrow small/></Link></div>
-    <div className="hero-trust"><span>Built for</span><b>Businesses</b><i>·</i><b>Recyclers</b><i>·</i><b>Logistics</b><i>·</i><b>Material buyers</b></div>
-   </div>
-   <div className="hero-visual" aria-label="Illustration of Reway's connected circular economy network">
-    <div className="orbit o1"></div><div className="orbit o2"></div><div className="orbit o3"></div><div className="core"><div className="core-logo">R</div><span>REWAY<br/><small>NETWORK</small></span></div>
-    {['SELLER','RECYCLER','LOGISTICS','MATERIALS','AI INTELLIGENCE','TRACEABILITY'].map((x,i)=><div key={x} className={'node n'+i}><span></span><b>{x}</b></div>)}
-    <svg className="hero-lines" viewBox="0 0 900 650" preserveAspectRatio="none"><path d="M150 120 C320 90 350 270 450 325 S620 560 770 520"/><path d="M130 420 C290 510 320 350 450 325 S650 100 800 170"/><path d="M450 325 C500 250 560 170 690 120"/></svg>
-   </div></section>
+  const { user, profile, signOut } = useAuth();
+  const [menu,setMenu] = useState(false);
+  const [scrolled,setScrolled] = useState(false);
+  const [traceStage,setTraceStage] = useState(0);
+  const [chartPoint,setChartPoint] = useState(5);
+  const role = profile?.role || user?.user_metadata?.role;
+  const accountPath = role === 'recycler' ? '/marketplace' : '/dashboard';
+  useEffect(()=>{ const onScroll=()=>setScrolled(window.scrollY>18); window.addEventListener('scroll',onScroll); return()=>window.removeEventListener('scroll',onScroll); },[]);
 
-   <section className="signal"><div className="container signal-row"><div><span className="kicker">THE GAP</span><h2>A fragmented system<br/><strong>needs a connected layer.</strong></h2></div><div className="signal-copy">E-waste moves through sellers, collectors, logistics providers and recyclers — often with limited discovery and visibility. Reway brings the network onto one digital layer.</div><div className="signal-metrics"><div><b>01</b><span>Fragmented<br/>stakeholders</span></div><div><b>02</b><span>Limited<br/>visibility</span></div><div><b>03</b><span>Lost material<br/>value</span></div></div></div></section>
+  return <div id="top" className="rw-site">
+    <header className={`rw-nav ${scrolled?'is-scrolled':''}`}><div className="rw-nav-inner">
+      <Logo/>
+      <nav className={menu?'open':''}>
+        {nav.map(([label,href])=><a key={label} href={href} onClick={()=>setMenu(false)}>{label}</a>)}
+        <Link to="/marketplace" onClick={()=>setMenu(false)}>Marketplace</Link>
+        {user ? <><Link to={accountPath} onClick={()=>setMenu(false)}>My Account</Link><button className="rw-nav-cta" onClick={async()=>{await signOut();setMenu(false)}}>Sign Out <Arrow/></button></> : <><Link to="/login" onClick={()=>setMenu(false)}>Login</Link><Link className="rw-nav-cta" to="/signup?role=seller" onClick={()=>setMenu(false)}>Sell E-Waste <Arrow/></Link></>}
+      </nav>
+      <button className="rw-menu" onClick={()=>setMenu(!menu)} aria-label="Toggle navigation">{menu?'×':'☰'}</button>
+    </div></header>
 
-   <section id="platform" className="section platform"><div className="container"><div className="section-head"><div><span className="kicker">THE PLATFORM</span><h2>One network.<br/><em>Multiple material flows.</em></h2></div><p>Reway is not another collection service. It is the technology layer connecting the circular economy — from listings and matching to movement, recovery and resale.</p></div>
-    <div className="network-card"><div className="network-center"><div className="mini-orbit"></div><strong>REWAY</strong><span>digital ecosystem</span></div>{[['SELLERS',12,19],['RECYCLERS',73,18],['LOGISTICS',8,72],['REFURBISHERS',76,73],['MATERIAL BUYERS',44,7],['COLLECTION',45,89]].map(([x,l,t])=><div className="network-node" style={{left:l+'%',top:t+'%'}} key={x}><span></span>{x}</div>)}<svg viewBox="0 0 1000 500" preserveAspectRatio="none"><path d="M150 95 Q500 250 750 90"/><path d="M100 360 Q500 250 790 360"/><path d="M450 35 Q500 250 500 450"/><path d="M150 95 Q260 250 100 360"/><path d="M750 90 Q640 250 790 360"/></svg></div>
-   </div></section>
+    <main>
+      <section className="rw-hero">
+        <div className="rw-shell rw-hero-grid">
+          <div className="rw-hero-copy">
+            <span className="rw-kicker light">E-WASTE MANAGEMENT PLATFORM</span>
+            <h1>A smarter way to <em>manage and move</em> e-waste.</h1>
+            <p>Reway is a digital e-waste management platform that connects businesses, waste generators, recyclers and buyers across India. List electronic waste, discover available materials and connect with the right partners through one platform.</p>
+            <div className="rw-actions"><Link className="rw-btn lime" to="/marketplace/sell">Sell E-Waste <Arrow/></Link><Link className="rw-btn outline" to="/marketplace/buy">Explore Marketplace <Arrow/></Link></div>
+            <div className="rw-audience"><span>Built for</span><b>Businesses</b><b>Authorised recyclers</b><b>Material buyers</b></div><div className="rw-trust-strip"><span>✓ Authorised recyclers only</span><span>◎ Digital-first workflow</span><span>↗ Traceable material journey</span></div>
+          </div>
+          <div className="rw-hero-media">
+            <img src="https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=1400&q=85" alt="Electronic equipment prepared for responsible recovery"/>
+            <div className="rw-float rw-float-a"><span>01</span><b>List material</b><small>Add quantity, condition and location</small></div>
+            <div className="rw-float rw-float-b"><span>02</span><b>Receive interest</b><small>Connect with recyclers and buyers</small></div>
+          </div>
+        </div>
+        <div className="rw-hero-bottom"><div className="rw-shell"><span>LIST</span><i></i><span>DISCOVER</span><i></i><span>QUOTE</span><i></i><span>CONNECT</span></div></div>
+      </section>
 
-   <section id="how" className="section how"><div className="container"><div className="section-head centered"><div><span className="kicker">HOW IT WORKS</span><h2>From waste stream<br/><em>to material stream.</em></h2></div></div><div className="steps">{steps.map(([num,title,desc],i)=><div className="step" key={num}><div className="step-top"><span>{num}</span><span className="step-dot"></span></div><h3>{title}</h3><p>{desc}</p>{i<5&&<div className="step-line"></div>}</div>)}</div><div className="manifest"><span>Reway circular manifest</span><b>Waste generated</b><i>→</i><b>Listed</b><i>→</i><b>Matched</b><i>→</i><b>Transported</b><i>→</i><b>Recycled</b><i>→</i><b>Recovered</b><i>→</i><b>Resold</b></div></div></section>
+      <section id="platform" className="rw-section rw-platform">
+        <div className="rw-shell">
+          <div className="rw-section-intro"><div><span className="rw-kicker">ABOUT THE PLATFORM</span><h2>Connecting India's <span>e-waste ecosystem.</span></h2></div><p>Electronic waste moves through businesses, recyclers, buyers, collection partners and logistics providers. Reway brings these participants onto one digital platform so opportunities are easier to discover, transactions can be handled digitally and material can move through a more structured, traceable process.</p></div>
+          <div className="rw-platform-grid">
+            <div className="rw-flow-visual">
+              <div className="rw-flow-title"><span>REWAY / ECOSYSTEM MAP</span><small>How participants connect</small></div>
+              <div className="rw-network">
+                <div className="rw-network-core"><strong>R</strong><span>REWAY</span></div>
+                <div className="rw-net-node n1"><b>Businesses</b><small>List e-waste</small></div>
+                <div className="rw-net-node n2"><b>Recyclers</b><small>Discover supply</small></div>
+                <div className="rw-net-node n3"><b>Buyers</b><small>Source material</small></div>
+                <div className="rw-net-node n4"><b>Partners</b><small>Support movement</small></div>
+                <svg viewBox="0 0 700 420"><path d="M130 90 C260 100 270 190 350 210"/><path d="M570 90 C440 100 430 190 350 210"/><path d="M130 330 C260 320 270 230 350 210"/><path d="M570 330 C440 320 430 230 350 210"/></svg>
+              </div>
+            </div>
+            <div className="rw-pillars">
+              <article><span>01</span><div><h3>Discover</h3><p>Find e-waste listings, recyclable materials and relevant opportunities across the marketplace.</p></div></article>
+              <article><span>02</span><div><h3>Connect</h3><p>Bring waste generators, recyclers, buyers and other ecosystem participants together.</p></div></article>
+              <article><span>03</span><div><h3>Trace</h3><p>Keep key material and transaction events in a digital trail as e-waste moves through the ecosystem.</p></div></article><article><span>04</span><div><h3>Recover</h3><p>Connect material with authorised recyclers and support more responsible recovery of valuable resources.</p></div></article>
+            </div>
+          </div>
+        </div>
+      </section>
 
-   <section className="section marketplace"><div className="container"><div className="section-head"><div><span className="kicker">DIGITAL MARKETPLACE</span><h2>Discover material.<br/><em>Find the next match.</em></h2></div><p>Example interface data shown for demonstration. In production, marketplace inventory can connect to Reway's backend and participant workflows.</p></div><div className="market-layout"><div className="listing-panel"><div className="panel-top"><b>Available material</b><span>DEMO DATA · 04 LISTINGS</span></div>{listings.map((x,i)=><div className="listing" key={x.type}><div className="material-icon">{['⌘','▦','◈','◌'][i]}</div><div className="listing-main"><b>{x.type}</b><span>{x.qty} · {x.loc}</span></div><span className="condition">{x.condition}</span><Link to="/marketplace" className="listing-link">View marketplace <Arrow small/></Link></div>)}</div><div className="market-side"><div className="quote-card"><span className="card-label">RECOVERED MATERIALS</span><h3>Put recovered value<br/>back in motion.</h3><p>Recyclers can list recovered metals and materials for buyers — extending the marketplace beyond waste.</p><div className="metal"><span>Cu</span><b>Copper</b><small>Recovered material</small><i>→</i></div><div className="metal"><span>Al</span><b>Aluminium</b><small>Recovered material</small><i>→</i></div></div></div></div></div></section>
+      <section className="rw-section rw-market-band">
+        <div className="rw-shell">
+          <div className="rw-dark-heading"><span className="rw-kicker light">E-WASTE MARKETPLACE</span><h2>Whether you have e-waste<br/>or need it, <em>start here.</em></h2></div>
+          <div className="rw-market-cards">
+            <article><div className="rw-card-num">01 / SELL</div><h3>Have e-waste to sell?</h3><p>List electronic waste with its material type, quantity, condition, photos and pickup location. Make it visible to relevant buyers and authorised recyclers on the platform.</p><Link to="/marketplace/sell">List your waste <Arrow/></Link><div className="rw-mini-ui"><span>NEW LISTING</span><div><b>Electronic equipment</b><small>Material type</small></div><div><b>1,250 kg</b><small>Quantity</small></div><i>Ready to publish</i></div></article>
+            <article><div className="rw-card-num">02 / SOURCE</div><h3>Looking for material?</h3><p>Browse available e-waste and scrap listings, review material details and submit quotations for opportunities relevant to you.</p><Link to="/marketplace/buy">Browse marketplace <Arrow/></Link><div className="rw-mini-ui"><span>MARKETPLACE</span><div><b>IT equipment</b><small>Delhi NCR</small></div><div><b>Battery waste</b><small>Noida</small></div><i>View available material</i></div></article>
+          </div>
+        </div>
+      </section>
 
-   <section className="section trace"><div className="container"><div className="trace-layout"><div><span className="kicker">TRACEABILITY</span><h2>See where the<br/><em>material is moving.</em></h2><p>Supply-chain visibility across movement, handoffs and processing — giving ecosystem participants a clearer digital journey.</p><a href="#contact" className="text-link">Talk to us about traceability <Arrow small/></a></div><div className="trace-card"><div className="trace-header"><span>LIVE MATERIAL JOURNEY</span><b>Illustrative</b></div><div className="timeline">{[['GENERATOR','Material listed','09:14 · Delhi NCR'],['COLLECTION','Pickup scheduled','11:32 · Gurugram'],['LOGISTICS','In transit','14:08 · NCR'],['RECYCLER','Received & processing','16:41 · Faridabad'],['RECOVERY','Materials recovered','— · Processing']].map((x,i)=><div className="event" key={x[0]}><div className="event-dot"><span></span></div><div><b>{x[0]}</b><strong>{x[1]}</strong><small>{x[2]}</small></div>{i<4&&<div className="event-connector"/>}</div>)}</div></div></div></div></section>
+      <section id="businesses" className="rw-section rw-persona white">
+        <div className="rw-shell rw-persona-grid">
+          <div className="rw-persona-copy"><span className="rw-kicker">FOR BUSINESSES</span><h2>Turn e-waste disposal into a <span>clear digital workflow.</span></h2><p>List obsolete electronics and other e-waste, share material details and make your requirement visible to recyclers and buyers through one platform.</p><ul><li>List e-waste with structured details</li><li>Add photos, quantity and pickup information</li><li>Receive quotations from interested participants</li><li>Keep listing, quotations and key activity in one digital workflow</li><li>Build a clearer digital trail for material movement</li></ul><Link className="rw-btn dark" to="/marketplace/sell">List E-Waste <Arrow/></Link></div>
+          <div className="rw-photo-panel"><img src="https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1300&q=85" alt="Electronic devices and components for recycling"/><div className="rw-photo-tag"><span>BUSINESS WORKFLOW</span><b>From obsolete equipment<br/>to a visible opportunity.</b></div></div>
+        </div>
+      </section>
 
-   <section id="technology" className="section tech"><div className="container"><div className="section-head"><div><span className="kicker">TECHNOLOGY LAYER</span><h2>Infrastructure for<br/><em>better decisions.</em></h2></div><p>Reway combines marketplace infrastructure, traceability and data intelligence into a single ecosystem layer.</p></div><div className="tech-grid"><div className="tech-card price"><div className="card-top"><span>AI PRICE INTELLIGENCE</span><span className="live">● ILLUSTRATIVE</span></div><h3>Know the value<br/>before you move it.</h3><p>AI-based e-waste price prediction can help participants understand expected market pricing and make better decisions.</p><div className="chart"><div className="chart-meta"><span>Illustrative price trend</span><b>₹ / kg</b></div><svg viewBox="0 0 620 180" preserveAspectRatio="none"><defs><linearGradient id="fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#78f58b" stopOpacity=".25"/><stop offset="1" stopColor="#78f58b" stopOpacity="0"/></linearGradient></defs><path className="area" d="M0 140 C70 128 85 98 150 116 S220 72 275 95 S345 40 410 72 S480 30 540 58 S590 18 620 24 V180 H0Z"/><path className="line" d="M0 140 C70 128 85 98 150 116 S220 72 275 95 S345 40 410 72 S480 30 540 58 S590 18 620 24"/></svg><div className="chart-values"><span>Historical</span><b>Predicted range</b><span>Market movement</span></div></div></div><div className="tech-stack"><div className="stack-title">REWAY / CORE LAYER</div>{[['01','Marketplace infrastructure'],['02','Supply-chain traceability'],['03','AI price intelligence'],['04','Data & analytics'],['05','Digital ecosystem'],['06','Future-ready integrations']].map(x=><div className="stack-row" key={x[0]}><span>{x[0]}</span><b>{x[1]}</b><Arrow small/></div>)}</div></div></div></section>
+      <section id="recyclers" className="rw-section rw-persona soft">
+        <div className="rw-shell rw-persona-grid reverse">
+          <div className="rw-insight-panel"><div className="rw-insight-head"><span>MATERIAL DISCOVERY</span><b>Marketplace overview</b></div><div className="rw-donut"><div><strong>68%</strong><span>Electronics</span></div></div><div className="rw-bars"><div><span>IT Equipment</span><i style={{'--w':'88%'}}></i><b>88</b></div><div><span>Battery Waste</span><i style={{'--w':'64%'}}></i><b>64</b></div><div><span>Vehicle Scrap</span><i style={{'--w':'42%'}}></i><b>42</b></div></div><small>Illustrative interface visual</small></div>
+          <div className="rw-persona-copy"><span className="rw-kicker">FOR RECYCLERS</span><h2>Discover e-waste and grow your <span>supply network.</span></h2><p>Authorised recyclers can browse available electronic waste, review listing details and submit quotations directly through the Reway marketplace.</p><ul><li>Marketplace participation for authorised recyclers</li><li>Discover available e-waste</li><li>Filter opportunities by material category</li><li>Review quantity, condition and location</li><li>Submit quotations through the marketplace</li></ul><Link className="rw-btn dark" to="/marketplace/buy">Find E-Waste <Arrow/></Link></div>
+        </div>
+      </section>
 
-   <section className="section stakeholders"><div className="container"><div className="section-head centered"><div><span className="kicker">ONE ECOSYSTEM</span><h2>Every participant.<br/><em>One connected layer.</em></h2></div></div><div className="stake-grid">{stakeholders.map((s,i)=><div className="stake" key={s}><span>0{i+1}</span><div className="stake-icon">{['◫','♻','◇','↗','◉','⌁'][i]}</div><h3>{s}</h3><p>Connect, discover and move material through a shared digital ecosystem.</p></div>)}</div></div></section>
+      <section id="how" className="rw-section rw-how">
+        <div className="rw-shell"><div className="rw-section-intro compact"><div><span className="rw-kicker">HOW REWAY WORKS</span><h2>E-waste management,<br/><span>made simpler.</span></h2></div><p>Four clear steps take an opportunity from available material to the right connection.</p></div>
+          <div className="rw-steps">
+            {[['01','List','Add the waste category, quantity, condition, photos and pickup details.'],['02','Discover','Relevant recyclers and buyers discover material that matches what they need.'],['03','Quote','Interested participants review the listing and submit their quotation.'],['04','Connect','Review the interest, connect with the right participant and take the transaction forward.']].map(([n,t,d])=><article key={n}><span>{n}</span><div className="rw-step-icon">{n==='01'?'＋':n==='02'?'⌕':n==='03'?'₹':'↗'}</div><h3>{t}</h3><p>{d}</p></article>)}
+          </div>
+        </div>
+      </section>
 
-   <section id="businesses" className="section persona"><div className="container persona-grid"><div className="persona-copy"><span className="kicker">FOR BUSINESSES</span><h2>Turn disposal<br/>into a <em>digital workflow.</em></h2><p>Give bulk generators a clearer way to list e-waste, discover relevant recyclers and track material movement through its next destination.</p><ul>{['Digitally list e-waste','Discover relevant recyclers','Compare marketplace opportunities','Track material movement','Improve visibility across disposal'].map(x=><li key={x}><span>✓</span>{x}</li>)}</ul><Link className="btn primary" to="/signup?role=seller">List Your Waste <Arrow/></Link></div><div className="persona-ui"><div className="window"><div className="window-bar"><span></span><span></span><span></span><b>reway / seller workspace</b></div><div className="workspace"><aside><div className="side-logo">R</div><span className="active">Listings</span><span>Pickups</span><span>Quotes</span><span>Tracking</span></aside><div className="dash"><div className="dash-title"><b>Material overview</b><span>+ New listing</span></div><div className="dash-cards"><div><small>ACTIVE LISTINGS</small><b>08</b></div><div><small>QUOTES RECEIVED</small><b>23</b></div><div><small>IN TRANSIT</small><b>03</b></div></div><div className="dash-table"><div><b>Material</b><b>Quantity</b><b>Status</b></div>{['IT equipment','PCBs','Lithium batteries'].map((x,i)=><div key={x}><span>{x}</span><span>{['1.2 t','480 kg','760 kg'][i]}</span><em>{['Matched','Listed','In transit'][i]}</em></div>)}</div></div></div></div></div></div></section>
+      <section id="technology" className="rw-section rw-tech">
+        <div className="rw-shell rw-tech-grid">
+          <div className="rw-tech-copy"><span className="rw-kicker light">TECH FIRST, END TO END</span><h2>Less offline chasing. <em>More digital visibility.</em></h2><p>Reway is designed around a digital-first workflow. Material details, discovery, quotations and key transaction events live in one environment, creating a clearer trail from listing to the next stage of recovery.</p><div className="rw-tech-list"><span>Structured material data</span><span>Digital quotations</span><span>Traceability trail</span><span>Authorised recycler network</span></div><div className="rw-sustain-note"><b>Sustainability through better movement</b><p>Better information and stronger connections can help useful materials reach recovery channels instead of remaining stranded in fragmented networks.</p></div></div>
+          <div className="rw-dashboard interactive"><div className="rw-dashboard-top"><span>REWAY / DIGITAL MATERIAL FLOW</span><small>Move across the graph</small></div><div className="rw-stat-row"><div><small>DIGITAL WORKFLOW</small><b>100%</b><em>Platform-led process</em></div><div><small>NETWORK ACCESS</small><b>AUTH</b><em>Authorised recyclers</em></div></div><div className="rw-chart rw-chart-interactive"><div className="rw-chart-label"><span>Illustrative material activity</span><b>Week {chartPoint+1} · {[18,26,23,37,34,49,45,58][chartPoint]} movements</b></div><svg viewBox="0 0 600 190" preserveAspectRatio="none"><path d="M0 150 C70 140 80 105 145 122 S220 80 280 98 S360 48 425 70 S510 28 600 38"/><path className="fill" d="M0 150 C70 140 80 105 145 122 S220 80 280 98 S360 48 425 70 S510 28 600 38 V190 H0Z"/>{[18,26,23,37,34,49,45,58].map((v,i)=><circle key={i} className={chartPoint===i?'active':''} cx={i*(600/7)} cy={160-(v*2.1)} r={chartPoint===i?8:5} onMouseEnter={()=>setChartPoint(i)} onFocus={()=>setChartPoint(i)} tabIndex="0"/> )}</svg><div className="rw-chart-weeks">{['W1','W2','W3','W4','W5','W6','W7','W8'].map((w,i)=><button key={w} className={chartPoint===i?'active':''} onMouseEnter={()=>setChartPoint(i)} onClick={()=>setChartPoint(i)}>{w}</button>)}</div></div></div>
+        </div>
+      </section>
 
-   <section id="recyclers" className="section recycler"><div className="container persona-grid reverse"><div className="recycler-visual"><div className="radar"><span className="radar-ring r1"></span><span className="radar-ring r2"></span><span className="radar-ring r3"></span><span className="radar-core">R</span>{['IT','PCB','BAT','Cu','Al'].map((x,i)=><b key={x} style={{'--i':i}}>{x}</b>)}</div><div className="radar-caption"><span>RECYCLER NETWORK</span><b>Discover supply<br/>across categories</b></div></div><div className="persona-copy"><span className="kicker">FOR RECYCLERS</span><h2>Grow your supply<br/><em>network digitally.</em></h2><p>Discover available e-waste, connect with sellers, coordinate movement and list recovered materials for the next buyer.</p><ul>{['Discover available e-waste','Access a larger supply network','Acquire material through the marketplace','Connect movement through logistics','List recovered metals/materials'].map(x=><li key={x}><span>✓</span>{x}</li>)}</ul><Link className="btn secondary" to="/signup?role=recycler">Join as a Recycler <Arrow/></Link></div></div></section>
+      <section className="rw-section rw-trace">
+        <div className="rw-shell">
+          <div className="rw-section-intro compact"><div><span className="rw-kicker">DIGITAL TRACEABILITY</span><h2>Follow the material, <span>not the paperwork.</span></h2></div><p>Reway creates a digital trail around key marketplace and material events. Select a stage to see how information can stay connected as e-waste moves forward.</p></div>
+          <div className="rw-trace-grid">
+            <div className="rw-trace-rail">{[
+              ['Listed','Material details, quantity, condition, photos and location are captured digitally.'],
+              ['Quoted','Marketplace quotations create a recorded commercial interaction.'],
+              ['Matched','The selected participant and next step can be linked to the material journey.'],
+              ['Moved','Pickup and movement events can form part of the transaction trail.'],
+              ['Recovery','The journey moves towards an authorised recycler and material recovery.']
+            ].map(([t,d],i)=><button key={t} className={traceStage===i?'active':''} onMouseEnter={()=>setTraceStage(i)} onClick={()=>setTraceStage(i)}><span>{String(i+1).padStart(2,'0')}</span><div><b>{t}</b><small>{d}</small></div></button>)}</div>
+            <div className="rw-trace-card">
+              <div className="rw-trace-card-top"><span>TRACE ID</span><b>RW-26-1048</b><i>LIVE TRAIL</i></div>
+              <div className="rw-trace-orbit"><div className="rw-trace-core">R</div>{['LIST','QUOTE','MATCH','MOVE','RECOVER'].map((x,i)=><span key={x} className={`p${i+1} ${i<=traceStage?'done':''}`}>{i<traceStage?'✓':i===traceStage?'●':'○'} {x}</span>)}</div>
+              <div className="rw-trace-detail"><span>CURRENT VIEW</span><h3>{['Material listed','Quotation recorded','Participant matched','Movement tracked','Recovery pathway'][traceStage]}</h3><p>{['Structured material data begins the digital trail.','Commercial interest is captured against the listing.','The material is connected with the selected ecosystem participant.','Pickup and movement information extends the digital record.','The material reaches the recovery stage through an authorised recycler.'][traceStage]}</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-   <section className="loop"><div className="container loop-inner"><div><span className="kicker">CLOSE THE LOOP</span><h2>Waste doesn't have<br/>to be the <em>end.</em></h2><p>Build a system where material keeps moving — through marketplaces, logistics, recovery and back into productive use.</p></div><div className="loop-wheel"><div className="wheel-ring"></div>{['GENERATE','LIST','MATCH','MOVE','RECYCLE','RECOVER','RESELL'].map((x,i)=><b key={x} style={{'--i':i}}>{x}</b>)}<div className="wheel-center">MATERIAL<br/><strong>FLOW</strong></div></div></div></section>
+      <section className="rw-section rw-categories">
+        <div className="rw-shell"><div className="rw-section-intro compact"><div><span className="rw-kicker">WHAT MOVES THROUGH REWAY</span><h2>Explore material<br/><span>categories.</span></h2></div><p>From used electronics and batteries to end-of-life vehicles, explore the material streams being brought onto Reway.</p></div>
+          <div className="rw-category-grid">{categories.map(c=><Link to={c.link} className="rw-category" key={c.code}><div className="rw-category-img"><img src={c.img} alt=""/><span>{c.code}</span></div><div><h3>{c.title}</h3><p>{c.text}</p><b>Explore category <Arrow/></b></div></Link>)}</div>
+        </div>
+      </section>
 
-   <section id="about" className="section about"><div className="container about-grid"><div><span className="kicker">ABOUT REWAY</span><h2>Building the<br/><em>next layer of circularity.</em></h2></div><div><p className="lead">Reway started with a simple observation: e-waste is valuable, but the system around it is fragmented.</p><p>We are building technology infrastructure that connects sellers, recyclers, logistics providers and material buyers — making the movement and exchange of material more visible, discoverable and data-driven.</p><p>Our existing journey is rooted in digitising the gap between e-waste sellers and authorised recyclers; the next chapter is a broader circular marketplace and ecosystem.</p></div></div></section>
+      <section id="about" className="rw-section rw-about">
+        <div className="rw-shell rw-about-grid"><div><span className="rw-kicker">ABOUT REWAY</span><h2>Building a digital layer for India's <span>circular economy.</span></h2></div><div><p className="lead">Reway is building a tech-first e-waste management platform that connects businesses, authorised recyclers, buyers and other stakeholders across India's electronic waste ecosystem.</p><p>We started with a simple problem: valuable material exists across the economy, but finding the right participant and moving that material forward can still depend on fragmented networks. Reway is building the digital infrastructure to make those connections easier, create better traceability and support more sustainable material recovery.</p></div></div>
+      </section>
 
-   <section id="contact" className="cta"><div className="container cta-inner"><div><span className="kicker">START WITH REWAY</span><h2>Build the circular<br/><em>economy with us.</em></h2><p>Tell us what you want to move, recover or connect.</p></div><form onSubmit={e=>e.preventDefault()}><div className="form-row"><input placeholder="Your name"/><input type="email" placeholder="Work email"/></div><select defaultValue=""><option value="" disabled>I am interested in…</option><option>Listing e-waste</option><option>Joining as a recycler</option><option>Logistics / collection</option><option>Material buying</option><option>Partnership</option></select><textarea rows="3" placeholder="Tell us a little about your requirement"></textarea><button className="btn primary" type="submit">Send enquiry <Arrow/></button></form></div></section>
-  </main>
-  <footer><div className="container footer-grid"><div><Logo/><p>Digital infrastructure for a circular economy.</p><a href="mailto:reway.ewm@gmail.com">reway.ewm@gmail.com</a><br/><a href="tel:+919315836383">+91 93158 36383</a></div><div><b>Platform</b><a href="#platform">Marketplace</a><a href="#how">How it works</a><a href="#technology">Technology</a></div><div><b>For participants</b><a href="#businesses">Businesses</a><a href="#recyclers">Recyclers</a><a href="#contact">Logistics & buyers</a></div><div><b>Company</b><a href="#about">About Reway</a><a href="#contact">Contact</a><a href="https://www.reway.co.in/" target="_blank" rel="noreferrer">Current website ↗</a></div></div><div className="container footer-bottom"><span>© 2026 Reway Technologies. All rights reserved.</span><span>Marketplace · Traceability · Intelligence · Circularity</span></div></footer>
- </div>
+      <section className="rw-final"><div className="rw-shell rw-final-inner"><div><span className="rw-kicker light">GET STARTED</span><h2>Your e-waste has a<br/>next destination. <em>Find it.</em></h2><p>List electronic waste, discover available materials and connect with participants across the e-waste ecosystem.</p></div><div className="rw-actions"><Link className="rw-btn lime" to="/marketplace/sell">Sell E-Waste <Arrow/></Link><Link className="rw-btn outline" to="/marketplace/buy">Explore Marketplace <Arrow/></Link></div></div></section>
+    </main>
+
+    <footer className="rw-footer"><div className="rw-shell rw-footer-grid"><div><Logo/><p>Connecting India's e-waste ecosystem through technology.</p><a href="mailto:reway.ewm@gmail.com">reway.ewm@gmail.com</a><br/><a href="tel:+919315836383">+91 93158 36383</a></div><div><b>Platform</b><Link to="/marketplace">Marketplace</Link><Link to="/marketplace/sell">Sell E-Waste</Link><a href="#how">How it works</a></div><div><b>Participants</b><a href="#businesses">Businesses</a><a href="#recyclers">Recyclers</a><a href="#technology">Technology</a></div><div><b>Company</b><a href="#about">About Reway</a><Link to="/services">Services</Link><a href="mailto:reway.ewm@gmail.com">Contact</a></div></div><div className="rw-shell rw-footer-bottom"><span>© 2026 Reway Technologies. All rights reserved.</span><span>E-Waste Management · Marketplace · Circular Economy</span></div></footer>
+  </div>
 }
