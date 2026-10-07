@@ -41,7 +41,7 @@ export default function LandingPage(){
           <div className="rw-hero-copy">
             <span className="rw-kicker light">E-WASTE MANAGEMENT PLATFORM</span>
             <h1>A smarter way to <em>manage and move</em> e-waste.</h1>
-            <p>Reway is a digital e-waste management platform that connects businesses, waste generators, recyclers and buyers across India. List electronic waste, discover available materials and connect with the right partners through one platform.</p>
+            <p>Reway is a digital e-waste management platform that connects businesses, waste generators, recyclers and buyers across India.</p>
             <div className="rw-actions"><Link className="rw-btn lime" to="/marketplace/sell">Sell E-Waste <Arrow/></Link><Link className="rw-btn outline" to="/marketplace/buy">Explore Marketplace <Arrow/></Link></div>
             <div className="rw-audience"><span>Built for</span><b>Businesses</b><b>Authorised recyclers</b><b>Material buyers</b></div><div className="rw-trust-strip"><span>✓ Authorised recyclers only</span><span>◎ Digital-first workflow</span><span>↗ Traceable material journey</span></div>
           </div>
